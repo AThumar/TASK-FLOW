@@ -1,6 +1,6 @@
 import React from "react";
 
-const ManageUsers = () => {
+const ManageTasks = () => {
     return (
         <div>
             <h1>Manage Users</h1>
@@ -8,4 +8,4 @@ const ManageUsers = () => {
         </div>
     );
 }
-export default ManageUsers;
+export default ManageTasks;
