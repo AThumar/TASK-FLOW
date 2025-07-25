@@ -12,22 +12,44 @@ const generateToken = (userId) => {
 //@desc register a new user
 //@route POST /api/auth/register
 //@access Public
-const registerUser = async (req, res) => {};
+const registerUser = async (req, res) => {
+    try{
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Server error', error: error.message });
+    }   
+};
 
 //@desc login user
 //@route POST /api/auth/login
 //@access Public
-const loginUser = async (req, res) => {};
+const loginUser = async (req, res) => { try{
+        
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Server error', error: error.message });
+    }   };
 
 //@desc get user profile
 //@route GET /api/auth/profile
 //@access Private(requies JWT)
-const getUserProfile = async (req, res) => {};
+const getUserProfile = async (req, res) => { try{
+        
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Server error', error: error.message });
+    }   };
 
 //@desc update user profile
 //@route PUT /api/auth/profile
 //@access Private(requies JWT)
-const updateUserProfile = async (req, res) => {};
+const updateUserProfile = async (req, res) => { try{
+        
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Server error', error: error.message });
+    }   };
 
 module.exports = {
     registerUser,loginUser,
