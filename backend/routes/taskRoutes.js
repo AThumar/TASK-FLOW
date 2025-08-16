@@ -14,5 +14,5 @@ router.delete("/:id", protect, adminOnly, deleteTask); // Delete a task (Admin o
 router.put("/:id/status", protect, updateTaskStatus); // Update task status
 router.put("/:id/todo", protect, updateTaskChecklist); // Update task checklist
 
-module.exports = router;
+module.exports = router
     
