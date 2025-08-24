@@ -1,7 +1,7 @@
 const express = require('express');
 const { registerUser, loginUser, getUserProfile, updateUserProfile } = require('../controllers/authController');
 const { protect } = require('../middlewares/authMiddleware');
-const upload = require('../middlewares/uploadMiddleware');
+const upload = require('../middlewares/uploadMiddleware'); // Assuming you have a middleware for handling file uploads
 const router = express.Router();
 
 router.post("/register",registerUser);
