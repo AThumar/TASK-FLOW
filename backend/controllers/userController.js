@@ -45,13 +45,5 @@ catch (error) {
     res.status(500).json({ message: 'Server error', error: error.message });
 }};
 
-//@desc delete user
-//@route DELETE /api/users/:id
-//@access Private (admin only)
-const deleteUser = async (req, res) => {try{}
-catch (error) {
-  
-    res.status(500).json({ message: 'Server error', error: error.message });
-}};
 
-module.exports = { getUsers, getUserById, deleteUser };
+module.exports = { getUsers, getUserById };
