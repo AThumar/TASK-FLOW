@@ -4,12 +4,76 @@ const Task = require("../models/Task");
 //@route get /api/tasks/
 //@access private
 const getTasks = async (req, res) => {
-    try{}
-    catch(error){
-        console.error(error);
-        res.status(500).json({ message: "Server Error" , error: error.message });
+  try {
+    const { status } = req.query;
+    let filter = {};
+
+    if (status) {
+      filter.status = status;
     }
+
+    let tasks;
+    if (req.user.role === 'admin') {
+      tasks = await Task.find(filter).populate(
+        "assignedTo",
+        "name email profileImageUrl"
+      );
+    } else {
+      tasks = await Task.find({ ...filter, assignedTo: req.user._id }).populate(
+        "assignedTo",
+        "name email profileImageUrl"
+      );
+    }
+
+    // add completed todoChecklist count to each task
+    tasks = await Promise.all(
+      tasks.map(async (task) => {
+        const completedCount = task.todoChecklist.filter(item => item.completed).length;
+        return {
+          ...task._doc,
+          completedTodoCount: completedCount,
+        };
+      })
+    );
+
+    const allTasks = await Task.countDocuments(
+      req.user.role === 'admin' ? {} : { assignedTo: req.user._id }
+    );
+
+    const pendingTasks = await Task.countDocuments({
+      ...filter,
+      status: 'pending',
+      ...(req.user.role !== 'admin' && { assignedTo: req.user._id }),
+    });
+
+    const inProgressTasks = await Task.countDocuments({
+      ...filter,
+      status: 'in-progress',
+      ...(req.user.role !== 'admin' && { assignedTo: req.user._id }),
+    });
+
+    const completedTasks = await Task.countDocuments({
+      ...filter,
+      status: 'completed',
+      ...(req.user.role !== 'admin' && { assignedTo: req.user._id }),
+    });
+
+    res.json({
+      tasks,
+      statusSummary: {
+        all: allTasks,
+        pendingTasks,
+        inProgressTasks,
+        completedTasks,
+      },
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server Error", error: error.message });
+  }
 };
+
+
 
 //@desc get task by id
 //@route get /api/task/:id
@@ -33,7 +97,7 @@ const createTask = async (req, res) => {try{
         attachments,
         todoChecklist,
     } = req.body;
-    if(!Array.isArrsy(assignedTo)){
+    if(!Array.isArray(assignedTo)){
         return res.status(400).json({message:"assignedTo must be an array of user IDs"});
     }
     const task = await Task.create({
