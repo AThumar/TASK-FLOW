@@ -293,7 +293,63 @@ const getDashboardData = async (req, res) => {try{
 //@desc dashboard data(user)
 //@route get /api/tasks/user-dashboard-data
 //@access private
-const getUserDashboardData =async(req,res)=>{try{}
+const getUserDashboardData =async(req,res)=>{try{
+    const userId = req.user._id;
+
+    const totalTasks = await Task.countDocuments({assignedTo:userId});
+    const pendingTasks = await Task.countDocuments({assignedTo:userId, status:"Pending"});
+    const completedTasks = await Task.countDocuments({assignedTo:userId, status:"Completed"});
+    const overdueTasks = await Task.countDocuments({assignedTo:userId, status:{$ne:"Completed"}, dueDate:{$lt:new Date()}});
+
+    const taskStatus = ["Pending", "In-progress", "Completed"];
+    const taskDistributionRow = await Task.aggregate([
+        {$match:{assignedTo:userId}},
+        {
+            $group:{
+                _id:"$status",
+                count:{$sum:1},
+            },
+        },
+    ]);
+
+    const taskDistribution = taskStatus.reduce((acc,status)=>{
+        const formattedKey = status.replace(/\s+/g,"");
+        acc[formattedKey] = taskDistributionRow.find((item)=>item._id === status)?.count || 0;
+        return acc;
+    },{});
+    taskDistribution["All"]= totalTasks;
+
+    const taskPriorities = ["Low", "Medium", "High"];
+    const priorityDistributionRow = await Task.aggregate([
+        {$match:{assignedTo:userId}},
+        {
+            $group:{
+                _id:"$priority",
+                count:{$sum:1},
+            },
+        },
+    ]);
+    const taskPriorityLevels = taskPriorities.reduce((acc,priority)=>{
+        acc[priority]= priorityDistributionRow.find((item)=>item._id === priority)?.count || 0;
+        return acc;
+    },{});
+
+    const recentTasks = await Task.find({assignedTo:userId}).sort({createdAt:-1}).limit(10).select("title status priority dueDate createdAt");
+
+    res.status(200).json({
+        statistics:{
+            totalTasks,
+            completedTasks,
+            pendingTasks,
+            overdueTasks,
+        },
+        charts:{
+            taskDistribution,   
+            taskPriorityLevels,
+        },
+        recentTasks,
+    });
+}
     catch(error){
         console.error(error);
         res.status(500).json({ message: "Server Error" , error: error.message });
