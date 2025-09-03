@@ -17,4 +17,7 @@ const taskSchema = new mongoose.Schema({
     todoChecklist:[todoSchema],
     progress: { type: Number, default: 0 },
 }, { timestamps: true });
+
+console.log("Task Status Enum:", taskSchema.path("status").enumValues);
+
 module.exports = mongoose.model('Task', taskSchema);
