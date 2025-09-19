@@ -24,6 +24,10 @@ const Login = () => {
             return;
         }
         setError("");
+        //login API call
+
+        try{}
+        catch(error){}
     };
     return (
         <AuthLayout>
