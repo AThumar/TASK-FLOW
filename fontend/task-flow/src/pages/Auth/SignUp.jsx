@@ -4,6 +4,12 @@ import { validateEmail } from "../../utils/helper";
 import ProfilePhotoSelector from "../../components/layouts/inputs/ProfilePhotoSelector";
 import Input from "../../components/layouts/inputs/input";
 import { Link } from "react-router-dom";
+import axiosInstance from "../../utils/axiosInstance";
+import { API_PATHS } from "../../utils/apiPaths";
+import { useNavigate } from "react-router-dom";
+import { UserContext } from "../../context/userContext";
+import { useContext } from "react";
+import uploadImage from "../../utils/uploadImage";
 const SignUp = () => {
   const [profilePic, setProfilePic] = useState(null);
   const [fullName, setFullName] = useState("");
@@ -12,10 +18,12 @@ const SignUp = () => {
   const [adminInviteToken, setAdminInviteToken] = useState("");
   const [error, setError] = useState("");
 
-
+const { updateUser } = useContext(UserContext);
+  const navigate = useNavigate();
     const handleSignUp = async (e) => {
         e.preventDefault();
 
+        let profileImageUrl = " ";
         if(!fullName){
             setError("Please enter a full name");
             return;
@@ -29,6 +37,40 @@ const SignUp = () => {
             return;
         }
         setError("");
+        //SignUp API call
+            try{
+              if (profilePic){
+                const imgUploadRes = await uploadImage(profilePic);
+                profileImageUrl = imgUploadRes.imageUrl || "";
+              }
+            const response = await axiosInstance.post(API_PATHS.AUTH.SIGNUP,{
+                name : fullName,
+                email,
+                password,
+               profileImageUrl,
+                adminInviteToken
+            });
+            const {token,role} = response.data;
+
+            if(token){
+                localStorage.setItem("token",token);
+                updateUser(response.data);
+
+                if(role==="admin"){
+                    navigate("/admin/dashboard");
+                }
+                else{
+                    navigate("/user/dashboard");
+                }
+            }
+        }
+        catch(error){
+            if(error.response  && error.response.data.message){
+                setError(error.response.data.message);
+            }else{
+                setError("Something went wrong. Please try again later.");
+            }
+        }
     };
 
   return (
@@ -60,8 +102,8 @@ label="Password"
 placeholder="Min 8 characters"
 type = "password"
 ></Input>
-<Input value={password}
-onChange={({target})=>setPassword(target.value)}
+<Input value={adminInviteToken}
+onChange={({target})=>setAdminInviteToken(target.value)}
 label="Admin Invite Token"
 placeholder="6 digit token"
 type = "text"
