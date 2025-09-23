@@ -2,14 +2,16 @@ import React from "react";
 import { useUserAuth } from "../../hooks/useUserAuth";
 import { useContext } from "react";
 import { UserContext } from "../../context/userContext";
+import DashboardLayout from "../../components/layouts/DashboardLayout";
+
 const Dashboard = () => {
         useUserAuth();
 
         const {user} = useContext(UserContext);
-    return  <div>
+    return  <DashboardLayout>
         Admin Dashboard
-        {JSON.stringify(user)}
-        </div>
+      
+        </DashboardLayout>
     ;
 };
 export default Dashboard;
