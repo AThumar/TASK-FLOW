@@ -13,8 +13,9 @@ import { addThousandSeparators } from "../../utils/helper";
 import { LuArrowRight } from "react-icons/lu";
 import TaskListTable from "../../components/TaskListTable";
 import CustomPieChart from "../../components/Charts/CustomPieChart";
+import CustomBarChart from "../../components/Charts/CustomBarChart";
 
-const COLORS = ["#8D51FF", "#00B8DB", "#7BCE00"];
+const COLORS = ["#8D51FF", "#00B8DB", "#4bc565ff"];
 const Dashboard = () => {
         useUserAuth();
 
@@ -110,6 +111,16 @@ const Dashboard = () => {
                     <CustomPieChart
                     data={pieChartData}
                     colors = {COLORS}
+                    />
+                </div>
+            </div>
+            <div>
+                <div className="card ">
+                    <div className="flex items-center justify-between">
+                        <h5 className="font-medium">Task Priority Levels</h5>
+                    </div>
+                    <CustomBarChart
+                    data={barChartData}
                     />
                 </div>
             </div>
