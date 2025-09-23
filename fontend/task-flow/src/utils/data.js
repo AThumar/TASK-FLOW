@@ -2,7 +2,7 @@ import {
     LuLayoutDashboard,
     LuUsers,
     LuSquarePlus,
-    LuLogout,
+    LuChevronLeft,
     LuClipboardCheck,
 } from "react-icons/lu";
 
@@ -34,7 +34,39 @@ export const SIDE_MENU_DATA = [
       {
         id:"05",
         label:"Logout",
-        icon:LuLogout,
+        icon:LuChevronLeft,
         path:"logout",
     },
+];
+
+export const SIDE_MENU_USER_DATA = [
+    {
+        id:"01",
+        label:"Dashboard",
+        icon:LuLayoutDashboard,
+        path:"/user/dashboard",
+    },
+    {
+        id:"02",
+        label:"My Tasks",
+        icon:LuClipboardCheck,
+        path:"/user/tasks",
+    },
+    {
+        id:"05",
+        label:" Logout",
+        icon:LuChevronLeft,
+        path:"logout",
+    }
+];
+export const PRIORITY_DATA =[
+    {label:"Low",value:"low"},
+    {label:"Medium",value:"medium"},
+    {label:"High",value:"high"},
+]
+
+export const STATUS_DATA =[
+    {label:"Pending",value:"Pending"},
+    {label:"In Progress",value:"In Progress"},
+    {label:"Completed",value:"completed"},
 ]
