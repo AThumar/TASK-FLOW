@@ -41,7 +41,6 @@ const selectedUserAvatars = allUsers
   .filter((user) => selectedUsers.includes(user._id) || selectedUsers.includes(user.id))
   .map((user) => user.profileImageUrl);
 
-console.log("Avatars to show:", selectedUserAvatars);
 
 
     useEffect(() => {
