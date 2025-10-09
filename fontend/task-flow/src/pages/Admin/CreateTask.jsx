@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import DashboardLayout from "../../components/layouts/DashboardLayout";
 import { PRIORITY_DATA } from "../../utils/data";
 import axiosInstance from "../../utils/axiosInstance";
@@ -107,8 +107,79 @@ const createTask = async () => {
   }
 };
 
-const updateTask = async() => {};
+// Find this empty function in CreateTask.jsx
+// const updateTask = async() => {};
 
+// And REPLACE it with this:
+// const updateTask = async () =>{
+//     setLoading(true);
+
+//     try{
+//         const todolist = taskData.todoChecklist?.map((item) => {
+//             const prevTodoChecklist = currentTask?. todoChecklist || [];
+//             const matchedTask = prevTodoChecklist.find((task)=>task.title == item);
+//             return {
+//                 title:item,
+//                 completed : matchedTask ? matchedTask.completed:false,
+//             };
+//         });
+//     const response = await axiosInstance.put(
+//         API_PATHS.TASKS.UPDATE_TASK(taskId),
+//         {
+//             ...taskData,
+//             dueDate : new Date(taskData.dueDate).toISOString(),
+//             todoChecklist:todolist,
+//         }
+
+//     );
+//     toast.success("Task Updated Successfully");
+// }
+// catch(error){
+//     console.error("Error creating task:" , error);
+//     setLoading(false);
+// }
+// finally{
+//         setLoading(false);
+
+// }
+// }
+const updateTask = async () => {
+    setLoading(true);
+
+    try {
+        const todolist = taskData.todoChecklist?.map((item) => {
+            const prevTodoChecklist = currentTask?.todoChecklist || [];
+            const matchedTask = prevTodoChecklist.find((task) => task.title === item);
+            return {
+                title: item,
+                completed: matchedTask ? matchedTask.completed : false,
+            };
+        });
+
+        const payload = {
+            title: taskData.title,
+            description: taskData.description,
+            // FIX: Ensure priority is always capitalized to match the backend enum
+            priority: taskData.priority.charAt(0).toUpperCase() + taskData.priority.slice(1),
+            dueDate: new Date(taskData.dueDate).toISOString(),
+            assignedTo: taskData.assignedTo,
+            attachments: taskData.attachments,
+            todoChecklist: todolist,
+        };
+
+        await axiosInstance.put(API_PATHS.TASKS.UPDATE_TASK(taskId), payload);
+        toast.success("Task Updated Successfully");
+        
+    } catch (error) {
+        console.error("Error updating task:", error);
+        // Check if the server provided a specific error message
+        const errorMessage = error.response?.data?.message || "Failed to update task.";
+        toast.error(errorMessage);
+    
+    } finally {
+        setLoading(false);
+    }
+};
 const handleSubmit = async() => {
     setError(null);
 
@@ -139,9 +210,40 @@ const handleSubmit = async() => {
     createTask();
 };
 
-const getTaskDetailsByID = async() =>{};
+const getTaskDetailsByID = async() =>{
+    try {
+        const response = await axiosInstance.get(
+            API_PATHS.TASKS.GET_TASK_BY_ID(taskId)
+        );
+        if(response.data){
+            const taskInfo = response.data;
+            setCurrentTask(taskInfo);
+
+            setTaskData((prevState) => ({
+                title : taskInfo.title,
+                description : taskInfo.description,
+                priority : taskInfo.priority,
+                dueDate : taskInfo.dueDate?moment(taskInfo.dueDate).format("YYYY-MM-DD"):null,
+                assignedTo:taskInfo?.assignedTo.map((item)=>item?._id) || [],
+                attachments : taskInfo?.attachments ||[],
+                                todoChecklist: taskInfo?.todoChecklist?.map((item) => item.title) || [], 
+
+            }));
+        }
+    }
+    catch(error){
+        console.log("Error fetching user:",error);
+    }
+};
 
 const deleteTask = async()=>{};
+
+useEffect (() => {
+    if(taskId){
+        getTaskDetailsByID(taskId);
+    }
+    return () => {};
+} , [taskId]);
 
     return (
         <DashboardLayout activeMenu="Create Tasks">
