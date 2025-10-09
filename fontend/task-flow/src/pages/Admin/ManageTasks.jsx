@@ -40,7 +40,22 @@ setTabs(statusArray);
         navigate (`/admin/create-task`,{state:{taskId:taskData._id}})
     }
     const handleDownloadReport = async()=>{
-
+  try{
+        const response = await axiosInstance.get(API_PATHS.REPORTS.EXPORT_TASKS,{
+            responseType: "blob",
+        });
+        const url = window.URL.createObjectURL(new Blob([response.data]));
+        const link = document.createElement("a");
+        link.href = url;
+        link.setAttribute("download" , "task_details.xlsx");
+        document.body.appendChild(link);
+        link.click();
+        link.parentNode.removeChild(link);
+        window.URL.revokeObjectURL(url);
+    }catch(error){
+        console.error("Error while downloading:",error);
+        toast.error("Failed downloading file , try again");
+    }
     };
     useEffect(()=>{
         getAllTasks(filterStatus);
