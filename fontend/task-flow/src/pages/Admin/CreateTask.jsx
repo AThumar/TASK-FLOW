@@ -11,8 +11,8 @@ import SelectDropdown from "../../components/layouts/inputs/SelectDropdown";
 import SelectUsers from "../../components/layouts/inputs/SelectUsers";
 import TodoListInput from "../../components/layouts/inputs/TodoListInput";
 import AddAttachmentsInput from "../../components/layouts/inputs/AddAttachmentsInput";
-
-
+import DeleteAlert  from "../../components/DeleteAlert";
+import Modal from "../../components/Modal";
 
 const CreateTask = () => {
     const location = useLocation();
@@ -236,7 +236,20 @@ const getTaskDetailsByID = async() =>{
     }
 };
 
-const deleteTask = async()=>{};
+const deleteTask = async()=>{
+    try{
+        await axiosInstance.delete(API_PATHS.TASKS.DELETE_TASK(taskId));
+        setOpenDeleteAlert(false);
+        toast.success("Task deleted sucessfully");
+        navigate('/admin/tasks')
+    }
+    catch(error){
+        console.error(
+            "Error while deleting:",
+            error.response?.data?.message || error.message
+        );
+    }
+};
 
 useEffect (() => {
     if(taskId){
@@ -370,6 +383,19 @@ setSelectedUsers = {(value) =>
                 </div>
                 </div>
                 </div>
+
+                <Modal
+                isOpen = {openDeleteAlert}
+                onClose = {()=>setOpenDeleteAlert(false)}
+                title = "Delete Task"
+                >
+                    <DeleteAlert 
+                    content = "Are you sure you want to delete this task?"
+                    onDelete = { () => deleteTask()}
+                        onCancel={() => setOpenDeleteAlert(false)}
+
+                    />
+                </Modal>
         </DashboardLayout>
     );
 }
